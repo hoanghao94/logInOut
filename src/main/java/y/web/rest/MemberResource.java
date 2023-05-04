@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
@@ -61,16 +62,16 @@ public class MemberResource {
      */
 
     @PostMapping("/login")
-    public String postLogin(@RequestParam String userName, @RequestParam String password) {
-        System.out.println(userName + password);
+    public String postLogin(@RequestParam String userName, @RequestParam String password, Model model) {
         Optional<Member> member = memberService.findByUserNamePassWord(userName, password);
         if (!member.isPresent()) {
-            return "redirect:/login";
-        }
-        else{
+            model.addAttribute("errorMessage", "Sai UserName hoặc Password");
+            return "login";
+        } else {
             return "checkInout";
         }
     }
+
 //    @PostMapping("/members")
 //    public ResponseEntity<Member> createMember(@RequestBody Member member) throws URISyntaxException {
 //        log.debug("REST request to save Member : {}", member);
@@ -87,11 +88,10 @@ public class MemberResource {
     /**
      * {@code PUT  /members/:id} : Updates an existing member.
      *
-     * @param id the id of the memberDTO to save.
-     * @param memberDTO the memberDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated memberDTO,
-     * or with status {@code 400 (Bad Request)} if the memberDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the memberDTO couldn't be updated.
+     * @param id the id of the member to save.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated member,
+     * or with status {@code 400 (Bad Request)} if the member is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the member couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/members/{id}")
