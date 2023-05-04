@@ -3,35 +3,35 @@ package y.service;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import y.domain.TimeSheet;
+import y.service.dto.TimeSheetDTO;
 
 /**
- * Service Interface for managing {@link TimeSheet}.
+ * Service Interface for managing {@link y.domain.TimeSheet}.
  */
 public interface TimeSheetService {
     /**
      * Save a timeSheet.
      *
-     * @param timeSheet the entity to save.
+     * @param timeSheetDTO the entity to save.
      * @return the persisted entity.
      */
-    TimeSheet save(TimeSheet timeSheet);
+    TimeSheetDTO save(TimeSheetDTO timeSheetDTO);
 
     /**
      * Updates a timeSheet.
      *
-     * @param timeSheet the entity to update.
+     * @param timeSheetDTO the entity to update.
      * @return the persisted entity.
      */
-    TimeSheet update(TimeSheet timeSheet);
+    TimeSheetDTO update(TimeSheetDTO timeSheetDTO);
 
     /**
      * Partially updates a timeSheet.
      *
-     * @param timeSheet the entity to update partially.
+     * @param timeSheetDTO the entity to update partially.
      * @return the persisted entity.
      */
-    Optional<TimeSheet> partialUpdate(TimeSheet timeSheet);
+    Optional<TimeSheetDTO> partialUpdate(TimeSheetDTO timeSheetDTO);
 
     /**
      * Get all the timeSheets.
@@ -39,7 +39,7 @@ public interface TimeSheetService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<TimeSheet> findAll(Pageable pageable);
+    Page<TimeSheetDTO> findAll(Pageable pageable);
 
     /**
      * Get the "id" timeSheet.
@@ -47,7 +47,7 @@ public interface TimeSheetService {
      * @param id the id of the entity.
      * @return the entity.
      */
-    Optional<TimeSheet> findOne(Long id);
+    Optional<TimeSheetDTO> findOne(Long id);
 
     /**
      * Delete the "id" timeSheet.

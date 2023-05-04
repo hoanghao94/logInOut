@@ -20,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import y.IntegrationTest;
 import y.domain.Member;
 import y.repository.MemberRepository;
+import y.service.dto.MemberDTO;
+import y.service.mapper.MemberMapper;
 
 /**
  * Integration tests for the {@link MemberResource} REST controller.
@@ -43,6 +45,9 @@ class MemberResourceIT {
 
     @Autowired
     private MemberRepository memberRepository;
+
+    @Autowired
+    private MemberMapper memberMapper;
 
     @Autowired
     private EntityManager em;
@@ -84,8 +89,9 @@ class MemberResourceIT {
     void createMember() throws Exception {
         int databaseSizeBeforeCreate = memberRepository.findAll().size();
         // Create the Member
+        MemberDTO memberDTO = memberMapper.toDto(member);
         restMemberMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(member)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(memberDTO)))
             .andExpect(status().isCreated());
 
         // Validate the Member in the database
@@ -101,12 +107,13 @@ class MemberResourceIT {
     void createMemberWithExistingId() throws Exception {
         // Create the Member with an existing ID
         member.setId(1L);
+        MemberDTO memberDTO = memberMapper.toDto(member);
 
         int databaseSizeBeforeCreate = memberRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restMemberMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(member)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(memberDTO)))
             .andExpect(status().isBadRequest());
 
         // Validate the Member in the database
@@ -166,12 +173,13 @@ class MemberResourceIT {
         // Disconnect from session so that the updates on updatedMember are not directly saved in db
         em.detach(updatedMember);
         updatedMember.userName(UPDATED_USER_NAME).passWord(UPDATED_PASS_WORD);
+        MemberDTO memberDTO = memberMapper.toDto(updatedMember);
 
         restMemberMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, updatedMember.getId())
+                put(ENTITY_API_URL_ID, memberDTO.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(updatedMember))
+                    .content(TestUtil.convertObjectToJsonBytes(memberDTO))
             )
             .andExpect(status().isOk());
 
@@ -189,12 +197,15 @@ class MemberResourceIT {
         int databaseSizeBeforeUpdate = memberRepository.findAll().size();
         member.setId(count.incrementAndGet());
 
+        // Create the Member
+        MemberDTO memberDTO = memberMapper.toDto(member);
+
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restMemberMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, member.getId())
+                put(ENTITY_API_URL_ID, memberDTO.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(member))
+                    .content(TestUtil.convertObjectToJsonBytes(memberDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -209,12 +220,15 @@ class MemberResourceIT {
         int databaseSizeBeforeUpdate = memberRepository.findAll().size();
         member.setId(count.incrementAndGet());
 
+        // Create the Member
+        MemberDTO memberDTO = memberMapper.toDto(member);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restMemberMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(member))
+                    .content(TestUtil.convertObjectToJsonBytes(memberDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -229,9 +243,12 @@ class MemberResourceIT {
         int databaseSizeBeforeUpdate = memberRepository.findAll().size();
         member.setId(count.incrementAndGet());
 
+        // Create the Member
+        MemberDTO memberDTO = memberMapper.toDto(member);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restMemberMockMvc
-            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(member)))
+            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(memberDTO)))
             .andExpect(status().isMethodNotAllowed());
 
         // Validate the Member in the database
@@ -305,12 +322,15 @@ class MemberResourceIT {
         int databaseSizeBeforeUpdate = memberRepository.findAll().size();
         member.setId(count.incrementAndGet());
 
+        // Create the Member
+        MemberDTO memberDTO = memberMapper.toDto(member);
+
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restMemberMockMvc
             .perform(
-                patch(ENTITY_API_URL_ID, member.getId())
+                patch(ENTITY_API_URL_ID, memberDTO.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(member))
+                    .content(TestUtil.convertObjectToJsonBytes(memberDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -325,12 +345,15 @@ class MemberResourceIT {
         int databaseSizeBeforeUpdate = memberRepository.findAll().size();
         member.setId(count.incrementAndGet());
 
+        // Create the Member
+        MemberDTO memberDTO = memberMapper.toDto(member);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restMemberMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(member))
+                    .content(TestUtil.convertObjectToJsonBytes(memberDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -345,9 +368,14 @@ class MemberResourceIT {
         int databaseSizeBeforeUpdate = memberRepository.findAll().size();
         member.setId(count.incrementAndGet());
 
+        // Create the Member
+        MemberDTO memberDTO = memberMapper.toDto(member);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restMemberMockMvc
-            .perform(patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(member)))
+            .perform(
+                patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(memberDTO))
+            )
             .andExpect(status().isMethodNotAllowed());
 
         // Validate the Member in the database

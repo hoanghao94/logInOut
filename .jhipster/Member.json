@@ -1,7 +1,7 @@
 {
   "applications": "*",
   "changelogDate": "20230504045641",
-  "dto": "no",
+  "dto": "mapstruct",
   "embedded": false,
   "entityTableName": "member",
   "fields": [

@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import y.IntegrationTest;
 import y.domain.TimeSheet;
 import y.repository.TimeSheetRepository;
+import y.service.dto.TimeSheetDTO;
+import y.service.mapper.TimeSheetMapper;
 
 /**
  * Integration tests for the {@link TimeSheetResource} REST controller.
@@ -48,6 +50,9 @@ class TimeSheetResourceIT {
 
     @Autowired
     private TimeSheetRepository timeSheetRepository;
+
+    @Autowired
+    private TimeSheetMapper timeSheetMapper;
 
     @Autowired
     private EntityManager em;
@@ -89,8 +94,9 @@ class TimeSheetResourceIT {
     void createTimeSheet() throws Exception {
         int databaseSizeBeforeCreate = timeSheetRepository.findAll().size();
         // Create the TimeSheet
+        TimeSheetDTO timeSheetDTO = timeSheetMapper.toDto(timeSheet);
         restTimeSheetMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(timeSheet)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(timeSheetDTO)))
             .andExpect(status().isCreated());
 
         // Validate the TimeSheet in the database
@@ -107,12 +113,13 @@ class TimeSheetResourceIT {
     void createTimeSheetWithExistingId() throws Exception {
         // Create the TimeSheet with an existing ID
         timeSheet.setId(1L);
+        TimeSheetDTO timeSheetDTO = timeSheetMapper.toDto(timeSheet);
 
         int databaseSizeBeforeCreate = timeSheetRepository.findAll().size();
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restTimeSheetMockMvc
-            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(timeSheet)))
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(timeSheetDTO)))
             .andExpect(status().isBadRequest());
 
         // Validate the TimeSheet in the database
@@ -174,12 +181,13 @@ class TimeSheetResourceIT {
         // Disconnect from session so that the updates on updatedTimeSheet are not directly saved in db
         em.detach(updatedTimeSheet);
         updatedTimeSheet.idMember(UPDATED_ID_MEMBER).logTime(UPDATED_LOG_TIME).state(UPDATED_STATE);
+        TimeSheetDTO timeSheetDTO = timeSheetMapper.toDto(updatedTimeSheet);
 
         restTimeSheetMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, updatedTimeSheet.getId())
+                put(ENTITY_API_URL_ID, timeSheetDTO.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(updatedTimeSheet))
+                    .content(TestUtil.convertObjectToJsonBytes(timeSheetDTO))
             )
             .andExpect(status().isOk());
 
@@ -198,12 +206,15 @@ class TimeSheetResourceIT {
         int databaseSizeBeforeUpdate = timeSheetRepository.findAll().size();
         timeSheet.setId(count.incrementAndGet());
 
+        // Create the TimeSheet
+        TimeSheetDTO timeSheetDTO = timeSheetMapper.toDto(timeSheet);
+
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restTimeSheetMockMvc
             .perform(
-                put(ENTITY_API_URL_ID, timeSheet.getId())
+                put(ENTITY_API_URL_ID, timeSheetDTO.getId())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(timeSheet))
+                    .content(TestUtil.convertObjectToJsonBytes(timeSheetDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -218,12 +229,15 @@ class TimeSheetResourceIT {
         int databaseSizeBeforeUpdate = timeSheetRepository.findAll().size();
         timeSheet.setId(count.incrementAndGet());
 
+        // Create the TimeSheet
+        TimeSheetDTO timeSheetDTO = timeSheetMapper.toDto(timeSheet);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restTimeSheetMockMvc
             .perform(
                 put(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(TestUtil.convertObjectToJsonBytes(timeSheet))
+                    .content(TestUtil.convertObjectToJsonBytes(timeSheetDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -238,9 +252,12 @@ class TimeSheetResourceIT {
         int databaseSizeBeforeUpdate = timeSheetRepository.findAll().size();
         timeSheet.setId(count.incrementAndGet());
 
+        // Create the TimeSheet
+        TimeSheetDTO timeSheetDTO = timeSheetMapper.toDto(timeSheet);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restTimeSheetMockMvc
-            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(timeSheet)))
+            .perform(put(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(timeSheetDTO)))
             .andExpect(status().isMethodNotAllowed());
 
         // Validate the TimeSheet in the database
@@ -316,12 +333,15 @@ class TimeSheetResourceIT {
         int databaseSizeBeforeUpdate = timeSheetRepository.findAll().size();
         timeSheet.setId(count.incrementAndGet());
 
+        // Create the TimeSheet
+        TimeSheetDTO timeSheetDTO = timeSheetMapper.toDto(timeSheet);
+
         // If the entity doesn't have an ID, it will throw BadRequestAlertException
         restTimeSheetMockMvc
             .perform(
-                patch(ENTITY_API_URL_ID, timeSheet.getId())
+                patch(ENTITY_API_URL_ID, timeSheetDTO.getId())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(timeSheet))
+                    .content(TestUtil.convertObjectToJsonBytes(timeSheetDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -336,12 +356,15 @@ class TimeSheetResourceIT {
         int databaseSizeBeforeUpdate = timeSheetRepository.findAll().size();
         timeSheet.setId(count.incrementAndGet());
 
+        // Create the TimeSheet
+        TimeSheetDTO timeSheetDTO = timeSheetMapper.toDto(timeSheet);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restTimeSheetMockMvc
             .perform(
                 patch(ENTITY_API_URL_ID, count.incrementAndGet())
                     .contentType("application/merge-patch+json")
-                    .content(TestUtil.convertObjectToJsonBytes(timeSheet))
+                    .content(TestUtil.convertObjectToJsonBytes(timeSheetDTO))
             )
             .andExpect(status().isBadRequest());
 
@@ -356,10 +379,13 @@ class TimeSheetResourceIT {
         int databaseSizeBeforeUpdate = timeSheetRepository.findAll().size();
         timeSheet.setId(count.incrementAndGet());
 
+        // Create the TimeSheet
+        TimeSheetDTO timeSheetDTO = timeSheetMapper.toDto(timeSheet);
+
         // If url ID doesn't match entity ID, it will throw BadRequestAlertException
         restTimeSheetMockMvc
             .perform(
-                patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(timeSheet))
+                patch(ENTITY_API_URL).contentType("application/merge-patch+json").content(TestUtil.convertObjectToJsonBytes(timeSheetDTO))
             )
             .andExpect(status().isMethodNotAllowed());
 

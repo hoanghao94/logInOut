@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import y.domain.TimeSheet;
 import y.repository.TimeSheetRepository;
 import y.service.TimeSheetService;
+import y.service.dto.TimeSheetDTO;
+import y.service.mapper.TimeSheetMapper;
 
 /**
  * Service Implementation for managing {@link TimeSheet}.
@@ -22,56 +24,56 @@ public class TimeSheetServiceImpl implements TimeSheetService {
 
     private final TimeSheetRepository timeSheetRepository;
 
-    public TimeSheetServiceImpl(TimeSheetRepository timeSheetRepository) {
+    private final TimeSheetMapper timeSheetMapper;
+
+    public TimeSheetServiceImpl(TimeSheetRepository timeSheetRepository, TimeSheetMapper timeSheetMapper) {
         this.timeSheetRepository = timeSheetRepository;
+        this.timeSheetMapper = timeSheetMapper;
     }
 
     @Override
-    public TimeSheet save(TimeSheet timeSheet) {
-        log.debug("Request to save TimeSheet : {}", timeSheet);
-        return timeSheetRepository.save(timeSheet);
+    public TimeSheetDTO save(TimeSheetDTO timeSheetDTO) {
+        log.debug("Request to save TimeSheet : {}", timeSheetDTO);
+        TimeSheet timeSheet = timeSheetMapper.toEntity(timeSheetDTO);
+        timeSheet = timeSheetRepository.save(timeSheet);
+        return timeSheetMapper.toDto(timeSheet);
     }
 
     @Override
-    public TimeSheet update(TimeSheet timeSheet) {
-        log.debug("Request to update TimeSheet : {}", timeSheet);
-        return timeSheetRepository.save(timeSheet);
+    public TimeSheetDTO update(TimeSheetDTO timeSheetDTO) {
+        log.debug("Request to update TimeSheet : {}", timeSheetDTO);
+        TimeSheet timeSheet = timeSheetMapper.toEntity(timeSheetDTO);
+        timeSheet = timeSheetRepository.save(timeSheet);
+        return timeSheetMapper.toDto(timeSheet);
     }
 
     @Override
-    public Optional<TimeSheet> partialUpdate(TimeSheet timeSheet) {
-        log.debug("Request to partially update TimeSheet : {}", timeSheet);
+    public Optional<TimeSheetDTO> partialUpdate(TimeSheetDTO timeSheetDTO) {
+        log.debug("Request to partially update TimeSheet : {}", timeSheetDTO);
 
         return timeSheetRepository
-            .findById(timeSheet.getId())
+            .findById(timeSheetDTO.getId())
             .map(existingTimeSheet -> {
-                if (timeSheet.getIdMember() != null) {
-                    existingTimeSheet.setIdMember(timeSheet.getIdMember());
-                }
-                if (timeSheet.getLogTime() != null) {
-                    existingTimeSheet.setLogTime(timeSheet.getLogTime());
-                }
-                if (timeSheet.getState() != null) {
-                    existingTimeSheet.setState(timeSheet.getState());
-                }
+                timeSheetMapper.partialUpdate(existingTimeSheet, timeSheetDTO);
 
                 return existingTimeSheet;
             })
-            .map(timeSheetRepository::save);
+            .map(timeSheetRepository::save)
+            .map(timeSheetMapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<TimeSheet> findAll(Pageable pageable) {
+    public Page<TimeSheetDTO> findAll(Pageable pageable) {
         log.debug("Request to get all TimeSheets");
-        return timeSheetRepository.findAll(pageable);
+        return timeSheetRepository.findAll(pageable).map(timeSheetMapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<TimeSheet> findOne(Long id) {
+    public Optional<TimeSheetDTO> findOne(Long id) {
         log.debug("Request to get TimeSheet : {}", id);
-        return timeSheetRepository.findById(id);
+        return timeSheetRepository.findById(id).map(timeSheetMapper::toDto);
     }
 
     @Override

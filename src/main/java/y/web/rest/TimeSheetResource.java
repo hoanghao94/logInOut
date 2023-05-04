@@ -18,9 +18,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
-import y.domain.TimeSheet;
 import y.repository.TimeSheetRepository;
 import y.service.TimeSheetService;
+import y.service.dto.TimeSheetDTO;
 import y.web.rest.errors.BadRequestAlertException;
 
 /**
@@ -49,17 +49,17 @@ public class TimeSheetResource {
     /**
      * {@code POST  /time-sheets} : Create a new timeSheet.
      *
-     * @param timeSheet the timeSheet to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new timeSheet, or with status {@code 400 (Bad Request)} if the timeSheet has already an ID.
+     * @param timeSheetDTO the timeSheetDTO to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new timeSheetDTO, or with status {@code 400 (Bad Request)} if the timeSheet has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/time-sheets")
-    public ResponseEntity<TimeSheet> createTimeSheet(@RequestBody TimeSheet timeSheet) throws URISyntaxException {
-        log.debug("REST request to save TimeSheet : {}", timeSheet);
-        if (timeSheet.getId() != null) {
+    public ResponseEntity<TimeSheetDTO> createTimeSheet(@RequestBody TimeSheetDTO timeSheetDTO) throws URISyntaxException {
+        log.debug("REST request to save TimeSheet : {}", timeSheetDTO);
+        if (timeSheetDTO.getId() != null) {
             throw new BadRequestAlertException("A new timeSheet cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        TimeSheet result = timeSheetService.save(timeSheet);
+        TimeSheetDTO result = timeSheetService.save(timeSheetDTO);
         return ResponseEntity
             .created(new URI("/api/time-sheets/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
@@ -69,23 +69,23 @@ public class TimeSheetResource {
     /**
      * {@code PUT  /time-sheets/:id} : Updates an existing timeSheet.
      *
-     * @param id the id of the timeSheet to save.
-     * @param timeSheet the timeSheet to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated timeSheet,
-     * or with status {@code 400 (Bad Request)} if the timeSheet is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the timeSheet couldn't be updated.
+     * @param id the id of the timeSheetDTO to save.
+     * @param timeSheetDTO the timeSheetDTO to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated timeSheetDTO,
+     * or with status {@code 400 (Bad Request)} if the timeSheetDTO is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the timeSheetDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/time-sheets/{id}")
-    public ResponseEntity<TimeSheet> updateTimeSheet(
+    public ResponseEntity<TimeSheetDTO> updateTimeSheet(
         @PathVariable(value = "id", required = false) final Long id,
-        @RequestBody TimeSheet timeSheet
+        @RequestBody TimeSheetDTO timeSheetDTO
     ) throws URISyntaxException {
-        log.debug("REST request to update TimeSheet : {}, {}", id, timeSheet);
-        if (timeSheet.getId() == null) {
+        log.debug("REST request to update TimeSheet : {}, {}", id, timeSheetDTO);
+        if (timeSheetDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, timeSheet.getId())) {
+        if (!Objects.equals(id, timeSheetDTO.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -93,34 +93,34 @@ public class TimeSheetResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        TimeSheet result = timeSheetService.update(timeSheet);
+        TimeSheetDTO result = timeSheetService.update(timeSheetDTO);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, timeSheet.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, timeSheetDTO.getId().toString()))
             .body(result);
     }
 
     /**
      * {@code PATCH  /time-sheets/:id} : Partial updates given fields of an existing timeSheet, field will ignore if it is null
      *
-     * @param id the id of the timeSheet to save.
-     * @param timeSheet the timeSheet to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated timeSheet,
-     * or with status {@code 400 (Bad Request)} if the timeSheet is not valid,
-     * or with status {@code 404 (Not Found)} if the timeSheet is not found,
-     * or with status {@code 500 (Internal Server Error)} if the timeSheet couldn't be updated.
+     * @param id the id of the timeSheetDTO to save.
+     * @param timeSheetDTO the timeSheetDTO to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated timeSheetDTO,
+     * or with status {@code 400 (Bad Request)} if the timeSheetDTO is not valid,
+     * or with status {@code 404 (Not Found)} if the timeSheetDTO is not found,
+     * or with status {@code 500 (Internal Server Error)} if the timeSheetDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/time-sheets/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<TimeSheet> partialUpdateTimeSheet(
+    public ResponseEntity<TimeSheetDTO> partialUpdateTimeSheet(
         @PathVariable(value = "id", required = false) final Long id,
-        @RequestBody TimeSheet timeSheet
+        @RequestBody TimeSheetDTO timeSheetDTO
     ) throws URISyntaxException {
-        log.debug("REST request to partial update TimeSheet partially : {}, {}", id, timeSheet);
-        if (timeSheet.getId() == null) {
+        log.debug("REST request to partial update TimeSheet partially : {}, {}", id, timeSheetDTO);
+        if (timeSheetDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, timeSheet.getId())) {
+        if (!Objects.equals(id, timeSheetDTO.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -128,11 +128,11 @@ public class TimeSheetResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<TimeSheet> result = timeSheetService.partialUpdate(timeSheet);
+        Optional<TimeSheetDTO> result = timeSheetService.partialUpdate(timeSheetDTO);
 
         return ResponseUtil.wrapOrNotFound(
             result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, timeSheet.getId().toString())
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, timeSheetDTO.getId().toString())
         );
     }
 
@@ -143,9 +143,9 @@ public class TimeSheetResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of timeSheets in body.
      */
     @GetMapping("/time-sheets")
-    public ResponseEntity<List<TimeSheet>> getAllTimeSheets(@org.springdoc.api.annotations.ParameterObject Pageable pageable) {
+    public ResponseEntity<List<TimeSheetDTO>> getAllTimeSheets(@org.springdoc.api.annotations.ParameterObject Pageable pageable) {
         log.debug("REST request to get a page of TimeSheets");
-        Page<TimeSheet> page = timeSheetService.findAll(pageable);
+        Page<TimeSheetDTO> page = timeSheetService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -153,20 +153,20 @@ public class TimeSheetResource {
     /**
      * {@code GET  /time-sheets/:id} : get the "id" timeSheet.
      *
-     * @param id the id of the timeSheet to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the timeSheet, or with status {@code 404 (Not Found)}.
+     * @param id the id of the timeSheetDTO to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the timeSheetDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/time-sheets/{id}")
-    public ResponseEntity<TimeSheet> getTimeSheet(@PathVariable Long id) {
+    public ResponseEntity<TimeSheetDTO> getTimeSheet(@PathVariable Long id) {
         log.debug("REST request to get TimeSheet : {}", id);
-        Optional<TimeSheet> timeSheet = timeSheetService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(timeSheet);
+        Optional<TimeSheetDTO> timeSheetDTO = timeSheetService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(timeSheetDTO);
     }
 
     /**
      * {@code DELETE  /time-sheets/:id} : delete the "id" timeSheet.
      *
-     * @param id the id of the timeSheet to delete.
+     * @param id the id of the timeSheetDTO to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/time-sheets/{id}")

@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import y.domain.Member;
 import y.repository.MemberRepository;
 import y.service.MemberService;
+import y.service.dto.MemberDTO;
+import y.service.mapper.MemberMapper;
 
 /**
  * Service Implementation for managing {@link Member}.
@@ -22,53 +24,56 @@ public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
 
-    public MemberServiceImpl(MemberRepository memberRepository) {
+    private final MemberMapper memberMapper;
+
+    public MemberServiceImpl(MemberRepository memberRepository, MemberMapper memberMapper) {
         this.memberRepository = memberRepository;
+        this.memberMapper = memberMapper;
     }
 
     @Override
-    public Member save(Member member) {
-        log.debug("Request to save Member : {}", member);
-        return memberRepository.save(member);
+    public MemberDTO save(MemberDTO memberDTO) {
+        log.debug("Request to save Member : {}", memberDTO);
+        Member member = memberMapper.toEntity(memberDTO);
+        member = memberRepository.save(member);
+        return memberMapper.toDto(member);
     }
 
     @Override
-    public Member update(Member member) {
-        log.debug("Request to update Member : {}", member);
-        return memberRepository.save(member);
+    public MemberDTO update(MemberDTO memberDTO) {
+        log.debug("Request to update Member : {}", memberDTO);
+        Member member = memberMapper.toEntity(memberDTO);
+        member = memberRepository.save(member);
+        return memberMapper.toDto(member);
     }
 
     @Override
-    public Optional<Member> partialUpdate(Member member) {
-        log.debug("Request to partially update Member : {}", member);
+    public Optional<MemberDTO> partialUpdate(MemberDTO memberDTO) {
+        log.debug("Request to partially update Member : {}", memberDTO);
 
         return memberRepository
-            .findById(member.getId())
+            .findById(memberDTO.getId())
             .map(existingMember -> {
-                if (member.getUserName() != null) {
-                    existingMember.setUserName(member.getUserName());
-                }
-                if (member.getPassWord() != null) {
-                    existingMember.setPassWord(member.getPassWord());
-                }
+                memberMapper.partialUpdate(existingMember, memberDTO);
 
                 return existingMember;
             })
-            .map(memberRepository::save);
+            .map(memberRepository::save)
+            .map(memberMapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Member> findAll(Pageable pageable) {
+    public Page<MemberDTO> findAll(Pageable pageable) {
         log.debug("Request to get all Members");
-        return memberRepository.findAll(pageable);
+        return memberRepository.findAll(pageable).map(memberMapper::toDto);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Member> findOne(Long id) {
+    public Optional<MemberDTO> findOne(Long id) {
         log.debug("Request to get Member : {}", id);
-        return memberRepository.findById(id);
+        return memberRepository.findById(id).map(memberMapper::toDto);
     }
 
     @Override
@@ -76,4 +81,11 @@ public class MemberServiceImpl implements MemberService {
         log.debug("Request to delete Member : {}", id);
         memberRepository.deleteById(id);
     }
+
+    @Override
+    public Optional<Member> findByUserNamePassWord(String useName, String password) {
+        return memberRepository.findByUserNamePassWord(useName,password);
+    }
+
+
 }

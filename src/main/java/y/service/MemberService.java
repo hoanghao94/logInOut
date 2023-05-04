@@ -4,6 +4,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import y.domain.Member;
+import y.service.dto.MemberDTO;
 
 /**
  * Service Interface for managing {@link Member}.
@@ -15,23 +16,23 @@ public interface MemberService {
      * @param member the entity to save.
      * @return the persisted entity.
      */
-    Member save(Member member);
+    MemberDTO save(MemberDTO memberDTO);
 
     /**
      * Updates a member.
      *
-     * @param member the entity to update.
+     * @param memberDTO the entity to update.
      * @return the persisted entity.
      */
-    Member update(Member member);
+    MemberDTO update(MemberDTO memberDTO);
 
     /**
      * Partially updates a member.
      *
-     * @param member the entity to update partially.
+     * @param memberDTO the entity to update partially.
      * @return the persisted entity.
      */
-    Optional<Member> partialUpdate(Member member);
+    Optional<MemberDTO> partialUpdate(MemberDTO memberDTO);
 
     /**
      * Get all the members.
@@ -39,7 +40,7 @@ public interface MemberService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<Member> findAll(Pageable pageable);
+    Page<MemberDTO> findAll(Pageable pageable);
 
     /**
      * Get the "id" member.
@@ -47,7 +48,7 @@ public interface MemberService {
      * @param id the id of the entity.
      * @return the entity.
      */
-    Optional<Member> findOne(Long id);
+    Optional<MemberDTO> findOne(Long id);
 
     /**
      * Delete the "id" member.
@@ -55,4 +56,10 @@ public interface MemberService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+    /**
+     * Get the "id" member.
+
+     */
+    Optional<Member> findByUserNamePassWord(String useName, String password);
 }

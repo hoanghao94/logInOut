@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
@@ -21,13 +22,14 @@ import tech.jhipster.web.util.ResponseUtil;
 import y.domain.Member;
 import y.repository.MemberRepository;
 import y.service.MemberService;
+import y.service.dto.MemberDTO;
 import y.web.rest.errors.BadRequestAlertException;
 
 /**
  * REST controller for managing {@link y.domain.Member}.
  */
-@RestController
-@RequestMapping("/api")
+@Controller
+//@RequestMapping("/api")
 public class MemberResource {
 
     private final Logger log = LoggerFactory.getLogger(MemberResource.class);
@@ -47,43 +49,61 @@ public class MemberResource {
     }
 
     /**
-     * {@code POST  /members} : Create a new member.
-     *
-     * @param member the member to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new member, or with status {@code 400 (Bad Request)} if the member has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     * {@code GET  /Login} : get page Login.
      */
-    @PostMapping("/members")
-    public ResponseEntity<Member> createMember(@RequestBody Member member) throws URISyntaxException {
-        log.debug("REST request to save Member : {}", member);
-        if (member.getId() != null) {
-            throw new BadRequestAlertException("A new member cannot already have an ID", ENTITY_NAME, "idexists");
-        }
-        Member result = memberService.save(member);
-        return ResponseEntity
-            .created(new URI("/api/members/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+    @GetMapping("/login")
+    public String getLogin() {
+        return "login";
     }
+
+    /**
+     * {@code POST  /members} : Post Member and check.
+     */
+
+    @PostMapping("/login")
+    public String postLogin(@RequestParam String userName, @RequestParam String password) {
+        System.out.println(userName + password);
+        Optional<Member> member = memberService.findByUserNamePassWord(userName, password);
+        if (!member.isPresent()) {
+            return "redirect:/login";
+        }
+        else{
+            return "checkInout";
+        }
+    }
+//    @PostMapping("/members")
+//    public ResponseEntity<Member> createMember(@RequestBody Member member) throws URISyntaxException {
+//        log.debug("REST request to save Member : {}", member);
+//        if (member.getId() != null) {
+//            throw new BadRequestAlertException("A new member cannot already have an ID", ENTITY_NAME, "idexists");
+//        }
+//        Member result = memberService.save(member);
+//        return ResponseEntity
+//            .created(new URI("/api/members/" + result.getId()))
+//            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
+//            .body(result);
+//    }
 
     /**
      * {@code PUT  /members/:id} : Updates an existing member.
      *
-     * @param id the id of the member to save.
-     * @param member the member to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated member,
-     * or with status {@code 400 (Bad Request)} if the member is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the member couldn't be updated.
+     * @param id the id of the memberDTO to save.
+     * @param memberDTO the memberDTO to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated memberDTO,
+     * or with status {@code 400 (Bad Request)} if the memberDTO is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the memberDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/members/{id}")
-    public ResponseEntity<Member> updateMember(@PathVariable(value = "id", required = false) final Long id, @RequestBody Member member)
-        throws URISyntaxException {
-        log.debug("REST request to update Member : {}, {}", id, member);
-        if (member.getId() == null) {
+    public ResponseEntity<MemberDTO> updateMember(
+        @PathVariable(value = "id", required = false) final Long id,
+        @RequestBody MemberDTO memberDTO
+    ) throws URISyntaxException {
+        log.debug("REST request to update Member : {}, {}", id, memberDTO);
+        if (memberDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, member.getId())) {
+        if (!Objects.equals(id, memberDTO.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -91,34 +111,34 @@ public class MemberResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Member result = memberService.update(member);
+        MemberDTO result = memberService.update(memberDTO);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, member.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, memberDTO.getId().toString()))
             .body(result);
     }
 
     /**
      * {@code PATCH  /members/:id} : Partial updates given fields of an existing member, field will ignore if it is null
      *
-     * @param id the id of the member to save.
-     * @param member the member to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated member,
-     * or with status {@code 400 (Bad Request)} if the member is not valid,
-     * or with status {@code 404 (Not Found)} if the member is not found,
-     * or with status {@code 500 (Internal Server Error)} if the member couldn't be updated.
+     * @param id the id of the memberDTO to save.
+     * @param memberDTO the memberDTO to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated memberDTO,
+     * or with status {@code 400 (Bad Request)} if the memberDTO is not valid,
+     * or with status {@code 404 (Not Found)} if the memberDTO is not found,
+     * or with status {@code 500 (Internal Server Error)} if the memberDTO couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/members/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<Member> partialUpdateMember(
+    public ResponseEntity<MemberDTO> partialUpdateMember(
         @PathVariable(value = "id", required = false) final Long id,
-        @RequestBody Member member
+        @RequestBody MemberDTO memberDTO
     ) throws URISyntaxException {
-        log.debug("REST request to partial update Member partially : {}, {}", id, member);
-        if (member.getId() == null) {
+        log.debug("REST request to partial update Member partially : {}, {}", id, memberDTO);
+        if (memberDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        if (!Objects.equals(id, member.getId())) {
+        if (!Objects.equals(id, memberDTO.getId())) {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
@@ -126,11 +146,11 @@ public class MemberResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<Member> result = memberService.partialUpdate(member);
+        Optional<MemberDTO> result = memberService.partialUpdate(memberDTO);
 
         return ResponseUtil.wrapOrNotFound(
             result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, member.getId().toString())
+            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, memberDTO.getId().toString())
         );
     }
 
@@ -141,9 +161,9 @@ public class MemberResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of members in body.
      */
     @GetMapping("/members")
-    public ResponseEntity<List<Member>> getAllMembers(@org.springdoc.api.annotations.ParameterObject Pageable pageable) {
+    public ResponseEntity<List<MemberDTO>> getAllMembers(@org.springdoc.api.annotations.ParameterObject Pageable pageable) {
         log.debug("REST request to get a page of Members");
-        Page<Member> page = memberService.findAll(pageable);
+        Page<MemberDTO> page = memberService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -151,20 +171,20 @@ public class MemberResource {
     /**
      * {@code GET  /members/:id} : get the "id" member.
      *
-     * @param id the id of the member to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the member, or with status {@code 404 (Not Found)}.
+     * @param id the id of the memberDTO to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the memberDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/members/{id}")
-    public ResponseEntity<Member> getMember(@PathVariable Long id) {
+    public ResponseEntity<MemberDTO> getMember(@PathVariable Long id) {
         log.debug("REST request to get Member : {}", id);
-        Optional<Member> member = memberService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(member);
+        Optional<MemberDTO> memberDTO = memberService.findOne(id);
+        return ResponseUtil.wrapOrNotFound(memberDTO);
     }
 
     /**
      * {@code DELETE  /members/:id} : delete the "id" member.
      *
-     * @param id the id of the member to delete.
+     * @param id the id of the memberDTO to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/members/{id}")

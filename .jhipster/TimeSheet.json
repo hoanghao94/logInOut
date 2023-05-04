@@ -1,7 +1,7 @@
 {
   "applications": "*",
   "changelogDate": "20230504060541",
-  "dto": "no",
+  "dto": "mapstruct",
   "embedded": false,
   "entityTableName": "time_sheet",
   "fields": [
