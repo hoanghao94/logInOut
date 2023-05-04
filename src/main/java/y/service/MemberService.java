@@ -55,4 +55,12 @@ public interface MemberService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+    /**
+     * Get the "id" member.
+     *
+     * @param id the id of the entity.
+     * @return the entity.
+     */
+    Optional<Member> findByUserNamePassWord(String useName, String password);
 }

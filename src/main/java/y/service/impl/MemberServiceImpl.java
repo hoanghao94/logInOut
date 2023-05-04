@@ -76,4 +76,11 @@ public class MemberServiceImpl implements MemberService {
         log.debug("Request to delete Member : {}", id);
         memberRepository.deleteById(id);
     }
+
+    @Override
+    public Optional<Member> findByUserNamePassWord(String useName, String password) {
+        return memberRepository.findByUserNamePassWord(useName,password);
+    }
+
+
 }

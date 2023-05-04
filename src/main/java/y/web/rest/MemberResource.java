@@ -5,15 +5,19 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
@@ -26,8 +30,8 @@ import y.web.rest.errors.BadRequestAlertException;
 /**
  * REST controller for managing {@link y.domain.Member}.
  */
-@RestController
-@RequestMapping("/api")
+@Controller
+//@RequestMapping("/api")
 public class MemberResource {
 
     private final Logger log = LoggerFactory.getLogger(MemberResource.class);
@@ -47,29 +51,45 @@ public class MemberResource {
     }
 
     /**
-     * {@code POST  /members} : Create a new member.
-     *
-     * @param member the member to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new member, or with status {@code 400 (Bad Request)} if the member has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
+     * {@code GET  /Login} : get page Login.
      */
-    @PostMapping("/members")
-    public ResponseEntity<Member> createMember(@RequestBody Member member) throws URISyntaxException {
-        log.debug("REST request to save Member : {}", member);
-        if (member.getId() != null) {
-            throw new BadRequestAlertException("A new member cannot already have an ID", ENTITY_NAME, "idexists");
-        }
-        Member result = memberService.save(member);
-        return ResponseEntity
-            .created(new URI("/api/members/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+    @GetMapping("/login")
+    public String getLogin() {
+        return "login";
     }
+
+    /**
+     * {@code POST  /members} : Post Member and check.
+     */
+
+    @PostMapping("/login")
+    public String postLogin(@RequestParam String userName, @RequestParam String password) {
+        System.out.println(userName + password);
+        Optional<Member> member = memberService.findByUserNamePassWord(userName, password);
+        if (!member.isPresent()) {
+            return "redirect:/login";
+        }
+        else{
+            return "checkInout";
+        }
+    }
+//    @PostMapping("/members")
+//    public ResponseEntity<Member> createMember(@RequestBody Member member) throws URISyntaxException {
+//        log.debug("REST request to save Member : {}", member);
+//        if (member.getId() != null) {
+//            throw new BadRequestAlertException("A new member cannot already have an ID", ENTITY_NAME, "idexists");
+//        }
+//        Member result = memberService.save(member);
+//        return ResponseEntity
+//            .created(new URI("/api/members/" + result.getId()))
+//            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
+//            .body(result);
+//    }
 
     /**
      * {@code PUT  /members/:id} : Updates an existing member.
      *
-     * @param id the id of the member to save.
+     * @param id     the id of the member to save.
      * @param member the member to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated member,
      * or with status {@code 400 (Bad Request)} if the member is not valid,
@@ -101,7 +121,7 @@ public class MemberResource {
     /**
      * {@code PATCH  /members/:id} : Partial updates given fields of an existing member, field will ignore if it is null
      *
-     * @param id the id of the member to save.
+     * @param id     the id of the member to save.
      * @param member the member to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated member,
      * or with status {@code 400 (Bad Request)} if the member is not valid,
@@ -109,7 +129,7 @@ public class MemberResource {
      * or with status {@code 500 (Internal Server Error)} if the member couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @PatchMapping(value = "/members/{id}", consumes = { "application/json", "application/merge-patch+json" })
+    @PatchMapping(value = "/members/{id}", consumes = {"application/json", "application/merge-patch+json"})
     public ResponseEntity<Member> partialUpdateMember(
         @PathVariable(value = "id", required = false) final Long id,
         @RequestBody Member member
@@ -134,19 +154,6 @@ public class MemberResource {
         );
     }
 
-    /**
-     * {@code GET  /members} : get all the members.
-     *
-     * @param pageable the pagination information.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of members in body.
-     */
-    @GetMapping("/members")
-    public ResponseEntity<List<Member>> getAllMembers(@org.springdoc.api.annotations.ParameterObject Pageable pageable) {
-        log.debug("REST request to get a page of Members");
-        Page<Member> page = memberService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
-    }
 
     /**
      * {@code GET  /members/:id} : get the "id" member.

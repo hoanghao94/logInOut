@@ -90,6 +90,14 @@ management:
             enabled: true
 
 spring:
+  thymeleaf:
+    check-template-location: true
+    prefix: classpath:/templates/
+    suffix: .jsp
+    mode: LEGACYHTML5
+    encoding: UTF-8
+    content-type: text/html
+    cache: false
   application:
     name: CheckInOut
   profiles:
@@ -147,8 +155,6 @@ spring:
       thread-name-prefix: check-in-out-scheduling-
       pool:
         size: 2
-  thymeleaf:
-    mode: HTML
   output:
     ansi:
       console-available: true
@@ -209,3 +215,4 @@ jhipster:
 # ===================================================================
 
 # application:
+
