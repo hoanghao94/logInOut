@@ -1,0 +1,32 @@
+{
+  "applications": "*",
+  "changelogDate": "20230504060541",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "time_sheet",
+  "fields": [
+    {
+      "fieldName": "id",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "idMember",
+      "fieldType": "Long"
+    },
+    {
+      "fieldName": "logTime",
+      "fieldType": "LocalDate"
+    },
+    {
+      "fieldName": "state",
+      "fieldType": "String"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "TimeSheet",
+  "pagination": "pagination",
+  "readOnly": false,
+  "relationships": [],
+  "service": "serviceImpl"
+}
